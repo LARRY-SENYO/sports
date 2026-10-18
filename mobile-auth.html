@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Titan Authenticator | Mobile 2FA Companion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --emerald: #059669;
+      --emerald-light: #ecfdf5;
+      --amber: #d97706;
+      --border: #e2e8f0;
+      --radius: 16px;
+      --shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px 16px;
+    }
+    .mobile-container {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 4px;
+    }
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 800;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+    .brand-text h1 {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #0f172a;
+    }
+    .brand-text p {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .live-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 20px;
+      background: #ecfdf5;
+      color: #059669;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid #a7f3d0;
+    }
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+    .auth-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .auth-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #2563eb, #10b981);
+    }
+    .device-scan-banner {
+      width: 100%;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .banner-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .banner-content strong {
+      display: block;
+      font-size: 12px;
+      color: #1e40af;
+      font-weight: 700;
+    }
+    .banner-content p {
+      font-size: 11px;
+      color: #3b82f6;
+      margin-top: 2px;
+    }
+    .user-info-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+    .user-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      color: #1e293b;
+      border: 2px solid white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+    .user-details {
+      text-align: left;
+    }
+    .user-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .user-account {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .code-display-wrap {
+      width: 100%;
+      background: #f8fafc;
+      border: 1.5px dashed #cbd5e1;
+      border-radius: 14px;
+      padding: 24px 12px 18px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .code-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+    .totp-digits {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 44px;
+      font-weight: 800;
+      letter-spacing: 6px;
+      color: #0f172a;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      user-select: all;
+    }
+    .totp-digits span {
+      display: inline-block;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .timer-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 14px;
+      width: 100%;
+    }
+    .circle-timer {
+      position: relative;
+      width: 36px;
+      height: 36px;
+    }
+    .circle-timer svg {
+      width: 36px;
+      height: 36px;
+      transform: rotate(-90deg);
+    }
+    .circle-bg {
+      fill: none;
+      stroke: #e2e8f0;
+      stroke-width: 3.5;
+    }
+    .circle-progress {
+      fill: none;
+      stroke: #2563eb;
+      stroke-width: 3.5;
+      stroke-linecap: round;
+      stroke-dasharray: 100;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 0.8s linear, stroke 0.3s;
+    }
+    .circle-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 11px;
+      font-weight: 700;
+      color: #334155;
+    }
+    .timer-info-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .timer-info-text strong {
+      color: #0f172a;
+    }
+    .actions-grid {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.15s ease-in-out;
+    }
+    .btn:active {
+      transform: scale(0.98);
+    }
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+    }
+    .btn-emerald {
+      background: #059669;
+      color: white;
+      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25);
+    }
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+    }
+    .instructions-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 16px;
+      font-size: 12px;
+      color: #475569;
+      line-height: 1.5;
+    }
+    .instructions-card h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .instructions-list {
+      padding-left: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #0f172a;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
+      opacity: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+    .toast-msg.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+    .account-switcher-row {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .account-switcher-row select {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      background: white;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="mobile-container">
+    <!-- Top Header -->
+    <header class="header-bar">
+      <div class="brand-logo">
+        <div class="logo-badge">⚡</div>
+        <div class="brand-text">
+          <h1>TITAN SPORTS OS</h1>
+          <p>Mobile 2FA Authenticator</p>
+        </div>
+      </div>
+      <div class="live-status-pill">
+        <span class="pulse-dot"></span>
+        <span>Device Active</span>
+      </div>
+    </header>
+
+    <!-- Main 2FA Card -->
+    <main class="auth-card">
+      <div class="device-scan-banner">
+        <span class="banner-icon">📲</span>
+        <div class="banner-content">
+          <strong>Authentication Token Received</strong>
+          <p>Your device is synchronized with Titan Sports OS via RFC 6238 TOTP.</p>
+        </div>
+      </div>
+
+      <!-- Identity Profile -->
+      <div class="user-info-row">
+        <div class="user-avatar" id="avatar-circle">AD</div>
+        <div class="user-details">
+          <div class="user-name" id="display-fullname">Super Administrator</div>
+          <div class="user-account" id="display-username">admin@titansports.org</div>
+        </div>
+      </div>
+
+      <!-- Live TOTP Digits Display -->
+      <div class="code-display-wrap">
+        <span class="code-label">One-Time Verification Code</span>
+        <div class="totp-digits" id="totp-code-display">------</div>
+
+        <div class="timer-container">
+          <div class="circle-timer">
+            <svg viewBox="0 0 36 36">
+              <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              <path class="circle-progress" id="timer-progress-ring" stroke-dasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            </svg>
+            <span class="circle-text" id="timer-number">30</span>
+          </div>
+          <div class="timer-info-text">
+            Expires in <strong id="timer-seconds-text">30s</strong> (rotates automatically)
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Action Buttons -->
+      <div class="actions-grid">
+        <button type="button" class="btn btn-emerald" id="btn-push-to-pc">
+          <span>⚡</span> Send Code to Computer / Approve
+        </button>
+        <button type="button" class="btn btn-secondary" id="btn-copy-code">
+          <span>📋</span> Copy 6-Digit Code
+        </button>
+      </div>
+
+      <!-- Switcher for Testing Different Accounts -->
+      <div class="account-switcher-row">
+        <span>Identity:</span>
+        <select id="mobile-account-select">
+          <option value="admin|Super Administrator|JBSWY3DPEHPK3PXP">Super Admin (admin)</option>
+          <option value="coach_marcus|Marcus Vance|KZXW6YTBOJUW4ZZ2">Coach Marcus</option>
+          <option value="player_alex|Alex Morgan|MZXW6YTBOJUW4ZZ3">Athlete Alex</option>
+          <option value="referee_dave|Dave Sterling|NZXW6YTBOJUW4ZZ4">Referee Dave</option>
+        </select>
+      </div>
+    </main>
+
+    <!-- Usage Instructions Card -->
+    <div class="instructions-card">
+      <h3><span>💡</span> How to use your authentication code:</h3>
+      <ol class="instructions-list">
+        <li><strong>Auto-Send:</strong> Tap <em>"Send Code to Computer"</em> above to automatically verify the login screen on your PC.</li>
+        <li><strong>Manual Entry:</strong> Or type the 6-digit code shown above directly into the verification box on your computer screen.</li>
+        <li><strong>Standards Compliant:</strong> This token also matches Google Authenticator and Apple Passwords.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="toast-msg" id="mobile-toast">
+    <span id="toast-icon">✅</span>
+    <span id="toast-text">Code copied to clipboard!</span>
+  </div>
+
+  <!-- Pure JS RFC 6238 TOTP Engine for 100% Offline / Mobile Support -->
+  <script>
+    (function () {
+      'use strict';
+
+      // 1. Parse URL Parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      let currentUsername = urlParams.get('user') || 'admin';
+      let currentFullname = urlParams.get('name') || (currentUsername === 'admin' ? 'Super Administrator' : currentUsername);
+      let currentSecret = urlParams.get('secret') || 'JBSWY3DPEHPK3PXP';
+
+      // UI Elements
+      const codeEl = document.getElementById('totp-code-display');
+      const timerProgressEl = document.getElementById('timer-progress-ring');
+      const timerNumberEl = document.getElementById('timer-number');
+      const timerSecondsText = document.getElementById('timer-seconds-text');
+      const avatarCircle = document.getElementById('avatar-circle');
+      const displayName = document.getElementById('display-fullname');
+      const displayUser = document.getElementById('display-username');
+      const copyBtn = document.getElementById('btn-copy-code');
+      const pushBtn = document.getElementById('btn-push-to-pc');
+      const toastEl = document.getElementById('mobile-toast');
+      const toastText = document.getElementById('toast-text');
+      const accountSelect = document.getElementById('mobile-account-select');
+
+      function updateProfileUI() {
+        displayName.textContent = currentFullname;
+        displayUser.textContent = currentUsername + '@titansports.org';
+        const initials = currentFullname.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'US';
+        avatarCircle.textContent = initials;
+      }
+      updateProfileUI();
+
+      // Account Selector Sync
+      accountSelect.addEventListener('change', function () {
+        const parts = this.value.split('|');
+        currentUsername = parts[0];
+        currentFullname = parts[1];
+        currentSecret = parts[2];
+        updateProfileUI();
+        tickTOTP();
+      });
+
+      // Pure JS SHA-1 Implementation
+      function sha1(message) {
+        function rotl(n, s) { return (n << s) | (n >>> (32 - s)); }
+        let msg = message;
+        let len = msg.length;
+        let words = [];
+        for (let i = 0; i < len; i++) {
+          words[i >> 2] |= (msg.charCodeAt(i) & 255) << (24 - (i % 4) * 8);
+        }
+        words[len >> 2] |= 0x80 << (24 - (len % 4) * 8);
+        words[(((len + 8) >> 6) << 4) + 15] = len * 8;
+
+        let H0 = 0x67452301, H1 = 0xefcdab89, H2 = 0x98badcfe, H3 = 0x10325476, H4 = 0xc3d2e1f0;
+        let W = new Array(80);
+
+        for (let i = 0; i < words.length; i += 16) {
+          for (let t = 0; t < 16; t++) W[t] = words[i + t] | 0;
+          for (let t = 16; t < 80; t++) W[t] = rotl(W[t - 3] ^ W[t - 8] ^ W[t - 14] ^ W[t - 16], 1);
+
+          let A = H0, B = H1, C = H2, D = H3, E = H4;
+          for (let t = 0; t < 80; t++) {
+            let f, k;
+            if (t < 20) { f = (B & C) | ((~B) & D); k = 0x5a827999; }
+            else if (t < 40) { f = B ^ C ^ D; k = 0x6ed9eba1; }
+            else if (t < 60) { f = (B & C) | (B & D) | (C & D); k = 0x8f1bbcdc; }
+            else { f = B ^ C ^ D; k = 0xca62c1d6; }
+            let temp = (rotl(A, 5) + f + E + k + W[t]) | 0;
+            E = D; D = C; C = rotl(B, 30); B = A; A = temp;
+          }
+          H0 = (H0 + A) | 0; H1 = (H1 + B) | 0; H2 = (H2 + C) | 0; H3 = (H3 + D) | 0; H4 = (H4 + E) | 0;
+        }
+        return [H0, H1, H2, H3, H4];
+      }
+
+      function hmacSha1(keyBytes, msgBytes) {
+        let key = Array.from(keyBytes);
+        if (key.length > 64) {
+          let kStr = key.map(b => String.fromCharCode(b)).join('');
+          let h = sha1(kStr);
+          key = [];
+          for (let i = 0; i < 5; i++) {
+            for (let j = 3; j >= 0; j--) key.push((h[i] >> (j * 8)) & 255);
+          }
+        }
+        while (key.length < 64) key.push(0);
+
+        let o_key_pad = key.map(b => b ^ 0x5c);
+        let i_key_pad = key.map(b => b ^ 0x36);
+
+        let innerMsg = i_key_pad.map(b => String.fromCharCode(b)).join('') +
+                       Array.from(msgBytes).map(b => String.fromCharCode(b)).join('');
+        let innerHash = sha1(innerMsg);
+        let innerBytes = [];
+        for (let i = 0; i < 5; i++) {
+          for (let j = 3; j >= 0; j--) innerBytes.push((innerHash[i] >> (j * 8)) & 255);
+        }
+
+        let outerMsg = o_key_pad.map(b => String.fromCharCode(b)).join('') +
+                       innerBytes.map(b => String.fromCharCode(b)).join('');
+        let outerHash = sha1(outerMsg);
+        let outerBytes = [];
+        for (let i = 0; i < 5; i++) {
+          for (let j = 3; j >= 0; j--) outerBytes.push((outerHash[i] >> (j * 8)) & 255);
+        }
+        return outerBytes;
+      }
+
+      function base32ToBytes(base32) {
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+        let cleaned = (base32 || '').replace(/=+$/, '').toUpperCase();
+        let bits = '';
+        for (let i = 0; i < cleaned.length; i++) {
+          let val = alphabet.indexOf(cleaned[i]);
+          if (val === -1) continue;
+          bits += val.toString(2).padStart(5, '0');
+        }
+        let bytes = [];
+        for (let i = 0; i + 8 <= bits.length; i += 8) {
+          bytes.push(parseInt(bits.substr(i, 8), 2));
+        }
+        return new Uint8Array(bytes);
+      }
+
+      function getRFC6238TOTP(secretBase32) {
+        let epoch = Math.floor(Date.now() / 1000 / 30);
+        let timeBytes = new Uint8Array(8);
+        for (let i = 7; i >= 0; i--) {
+          timeBytes[i] = epoch & 0xff;
+          epoch = Math.floor(epoch / 256);
+        }
+        let keyBytes = base32ToBytes(secretBase32);
+        let hmac = hmacSha1(keyBytes, timeBytes);
+        let offset = hmac[hmac.length - 1] & 0x0f;
+        let binary = ((hmac[offset] & 0x7f) << 24) |
+                     ((hmac[offset + 1] & 0xff) << 16) |
+                     ((hmac[offset + 2] & 0xff) << 8) |
+                     (hmac[offset + 3] & 0xff);
+        let otp = binary % 1000000;
+        return otp.toString().padStart(6, '0');
+      }
+
+      let lastRawCode = '';
+
+      function tickTOTP() {
+        const nowSec = Math.floor(Date.now() / 1000);
+        const remaining = 30 - (nowSec % 30);
+        const rawCode = getRFC6238TOTP(currentSecret);
+        lastRawCode = rawCode;
+
+        // Display with space: "804 087"
+        codeEl.textContent = rawCode.substring(0, 3) + ' ' + rawCode.substring(3, 6);
+
+        // Update progress ring
+        const pct = (remaining / 30) * 100;
+        timerProgressEl.style.strokeDashoffset = (100 - pct);
+        timerNumberEl.textContent = remaining;
+        timerSecondsText.textContent = remaining + 's';
+
+        // Color transition near expiry
+        if (remaining <= 5) {
+          timerProgressEl.style.stroke = '#ef4444';
+        } else if (remaining <= 10) {
+          timerProgressEl.style.stroke = '#f59e0b';
+        } else {
+          timerProgressEl.style.stroke = '#2563eb';
+        }
+      }
+
+      // Initial run & 1-second interval
+      tickTOTP();
+      setInterval(tickTOTP, 1000);
+
+      // Toast Notification Helper
+      function showToast(msg, icon = '✅') {
+        toastText.textContent = msg;
+        document.getElementById('toast-icon').textContent = icon;
+        toastEl.classList.add('show');
+        setTimeout(() => toastEl.classList.remove('show'), 2500);
+      }
+
+      // Copy Code Button
+      copyBtn.addEventListener('click', function () {
+        if (!lastRawCode) return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(lastRawCode).then(() => {
+            showToast('Code ' + lastRawCode + ' copied to clipboard!');
+          }).catch(() => {
+            showToast('Code: ' + lastRawCode);
+          });
+        } else {
+          showToast('Code: ' + lastRawCode);
+        }
+      });
+
+      // Send Code to Computer / Approve Button
+      pushBtn.addEventListener('click', async function () {
+        if (!lastRawCode) return;
+        pushBtn.disabled = true;
+        pushBtn.innerHTML = '<span>⏳</span> Sending to PC...';
+
+        try {
+          // Attempt POST to local server
+          const response = await fetch('/api/auth/push', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user: currentUsername,
+              code: lastRawCode,
+              timestamp: Date.now()
+            })
+          });
+
+          if (response.ok) {
+            showToast('⚡ Code ' + lastRawCode + ' sent to PC screen!', '🚀');
+          } else {
+            // Local fallback if running standalone
+            showToast('Code ' + lastRawCode + ' ready! Enter on PC', '📱');
+          }
+        } catch (e) {
+          // Cross-tab fallback via BroadcastChannel or localStorage if on same browser
+          try {
+            localStorage.setItem('titan_mobile_push_event', JSON.stringify({
+              user: currentUsername,
+              code: lastRawCode,
+              time: Date.now()
+            }));
+          } catch(err) {}
+          showToast('Code ' + lastRawCode + ' ready! Type into your PC', '📱');
+        } finally {
+          setTimeout(() => {
+            pushBtn.disabled = false;
+            pushBtn.innerHTML = '<span>⚡</span> Send Code to Computer / Approve';
+          }, 1500);
+        }
+      });
+
+    })();
+  </script>
+</body>
+</html>

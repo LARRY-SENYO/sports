@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- =====================================================================
+       SECTION 1: META INFORMATION & DOCUMENT HEAD
+       Defines character encoding, responsive viewport, SEO metadata,
+       and typography fonts (Inter for UI, JetBrains Mono for security hashes).
+       ===================================================================== -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Titan Sports OS: Enterprise sports management platform featuring mandatory 2-Factor Authentication, Cryptographic Salt & Pepper sandbox, dedicated Administrator and User portals, data-preserving Config Restore Points, and immutable Audit Trails.">
+    <title>TITAN SPORTS OS | Enterprise Sports Management Platform</title>
+
+    <!-- Google Fonts: Inter for clean UI & JetBrains Mono for cryptography & 2FA codes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Core Light-Theme Stylesheet -->
+    <link rel="stylesheet" href="sports.css">
+</head>
+
+<body class="theme-light">
+
+    <!-- =====================================================================
+       SECTION 2: GLOBAL NOTIFICATION TOAST CONTAINER
+       Floating feedback alerts (success, warning, error, info) display here.
+       ===================================================================== -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <!-- =====================================================================
+       SECTION 3: AUTHENTICATION GATE SCREEN (SIGN IN / SIGN UP)
+       *CRITICAL REQUIREMENT*: This gatekeeper screen appears BEFORE the system
+       itself. Users must authenticate with 2FA before entering the platform.
+       ===================================================================== -->
+    <div id="auth-gate-screen" class="auth-gate-wrapper">
+        <div class="auth-gate-container">
+
+            <!-- Top Branding in Gate Screen -->
+            <div class="auth-gate-header text-center">
+                <div class="auth-brand-badge">
+                    <span class="auth-brand-icon">⚡</span>
+                    <span class="auth-brand-name">TITAN SPORTS <span class="badge-pill-os">OS</span></span>
+                </div>
+                <h1 class="auth-gate-title">Enterprise Sports Management & Security System</h1>
+                <p class="auth-gate-subtitle">Please sign in to access your dedicated role portal (Administrator or User
+                    Portal).</p>
+            </div>
+
+            <!-- Main Auth Split: Sign In / Sign Up Form + 2FA Authenticator Simulator -->
+            <div class="auth-split-grid">
+
+                <!-- Left: Login & Registration Tabs Card -->
+                <div class="card auth-main-card">
+                    <div class="auth-nav-tabs">
+                        <button class="auth-nav-btn active" id="gate-tab-login-btn">
+                            <span>🔐</span> Secure Sign In (2FA)
+                        </button>
+                        <button class="auth-nav-btn" id="gate-tab-register-btn">
+                            <span>✨</span> Create New User
+                        </button>
+                    </div>
+
+                    <!-- Sign In Pane (Step 1 of 2FA Flow) -->
+                    <div id="gate-login-pane" class="gate-pane active">
+                        <div class="gate-intro-banner">
+                            <span class="banner-pill">SECURE ACCESS</span>
+                            <p>Authentication utilizes <strong>Per-User Salt</strong> + <strong>System Pepper</strong>
+                                followed by a <strong>2FA challenge</strong>.</p>
+                        </div>
+
+                        <form id="form-gate-login" autocomplete="off">
+                            <div class="form-group">
+                                <label for="gate-username" class="form-label">Username / Identity ID</label>
+                                <div class="input-icon-wrap">
+                                    <span class="input-icon">👤</span>
+                                    <input type="text" id="gate-username" class="form-control"
+                                        placeholder="Enter username (e.g. admin)" value="admin" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="gate-password" class="form-label">Password</label>
+                                <div class="input-icon-wrap">
+                                    <span class="input-icon">🔑</span>
+                                    <input type="password" id="gate-password" class="form-control"
+                                        placeholder="Enter password" value="Admin@2026!" required>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block btn-lg" id="btn-gate-submit-login">
+                                Sign In & Request 2FA Challenge &rarr;
+                            </button>
+                        </form>
+
+                        <!-- Quick Demo One-Click Login Helpers -->
+                        <div class="quick-demo-accounts-box">
+                            <span class="quick-demo-title">⚡ Quick Demo One-Click Login:</span>
+                            <div class="demo-buttons-flex">
+                                <button type="button" class="btn btn-outline btn-sm btn-quick-autologin" data-u="admin"
+                                    data-p="Admin@2026!">
+                                    👑 Administrator Portal
+                                </button>
+                                <button type="button" class="btn btn-outline btn-sm btn-quick-autologin"
+                                    data-u="coach_marcus" data-p="Coach@2026!">
+                                    📋 Coach Portal
+                                </button>
+                                <button type="button" class="btn btn-outline btn-sm btn-quick-autologin"
+                                    data-u="player_alex" data-p="Player@2026!">
+                                    🏃 Athlete User Portal
+                                </button>
+                                <button type="button" class="btn btn-outline btn-sm btn-quick-autologin"
+                                    data-u="referee_dave" data-p="Ref@2026!">
+                                    ⚖️ Referee Portal
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Registration Pane -->
+                    <div id="gate-register-pane" class="gate-pane">
+                        <div class="gate-intro-banner banner-emerald">
+                            <span class="banner-pill pill-emerald">NEW IDENTITY</span>
+                            <p>Registering provisions an isolated 32-character Hex Salt Nonce and generates your
+                                personal 2FA seed.</p>
+                        </div>
+
+                        <form id="form-gate-register" autocomplete="off">
+                            <div class="form-row">
+                                <div class="form-group col-6">
+                                    <label for="gate-reg-username" class="form-label">Username</label>
+                                    <input type="text" id="gate-reg-username" class="form-control"
+                                        placeholder="e.g. coach_taylor" required>
+                                </div>
+                                <div class="form-group col-6">
+                                    <label for="gate-reg-fullname" class="form-label">Full Name</label>
+                                    <input type="text" id="gate-reg-fullname" class="form-control"
+                                        placeholder="e.g. Taylor Ross" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="gate-reg-email" class="form-label">Email Address</label>
+                                <input type="email" id="gate-reg-email" class="form-control"
+                                    placeholder="taylor@sports.org" required>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-6">
+                                    <label for="gate-reg-role" class="form-label">Assign Portal Role</label>
+                                    <select id="gate-reg-role" class="form-select">
+                                        <option value="Athlete">Athlete / Player</option>
+                                        <option value="Coach">Coach / Athletic Director</option>
+                                        <option value="Referee">Match Referee</option>
+                                        <option value="Admin">System Administrator</option>
+                                        <option value="Viewer">Viewer / Fan</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-6">
+                                    <label for="gate-reg-password" class="form-label">Password</label>
+                                    <input type="password" id="gate-reg-password" class="form-control"
+                                        placeholder="Min 8 characters" required>
+                                </div>
+                            </div>
+
+                            <div class="crypto-note-box">
+                                <span>🧂 A cryptographically secure random 32-character Salt will be stored in your
+                                    record.</span>
+                            </div>
+
+                            <button type="submit" class="btn btn-emerald btn-block btn-lg mt-3"
+                                id="btn-gate-submit-register">
+                                Register & Provision 2FA Secret
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Right: Mobile Authenticator Simulator & QR Code Card -->
+                <div class="card auth-simulator-card">
+                    <div class="card-header">
+                        <div class="companion-nav-tabs">
+                            <button type="button" class="companion-tab active" id="btn-gate-tab-qr">
+                                <span>📱</span> Scan QR with Phone
+                            </button>
+                            <button type="button" class="companion-tab" id="btn-gate-tab-sim">
+                                <span>💻</span> On-Screen Token
+                            </button>
+                        </div>
+                        <span class="badge badge-purple">RFC 6238 TOTP</span>
+                    </div>
+                    <div class="card-body">
+                        <!-- Pane 1: Physical Device QR Scanner (Active by default) -->
+                        <div id="gate-companion-pane-qr" class="companion-pane active">
+                            <p class="section-intro-text text-sm">
+                                <strong>Scan with your phone camera:</strong> Your device will instantly open the mobile
+                                companion and display your live 6-digit authentication token!
+                            </p>
+
+                            <!-- QR Format Selector -->
+                            <div class="qr-mode-selector-wrap mt-2">
+                                <button type="button" class="btn-qr-mode active" id="btn-gate-qr-mode-web"
+                                    data-mode="web">
+                                    📷 Phone Camera (Web Token)
+                                </button>
+                                <button type="button" class="btn-qr-mode" id="btn-gate-qr-mode-app" data-mode="app">
+                                    🛡️ Google / Apple Authenticator
+                                </button>
+                            </div>
+
+                            <!-- High-Contrast Scannable QR Code Frame -->
+                            <div class="qr-code-display-card mt-3">
+                                <div id="gate-companion-qrcode" class="qr-code-render-target"></div>
+                                <div class="qr-status-pill mt-2">
+                                    <span class="pulse-dot"></span>
+                                    <span id="gate-qr-status-label">Ready for device scan</span>
+                                </div>
+                            </div>
+
+                            <!-- Mobile Direct Access & Network IP -->
+                            <div class="qr-network-meta-box mt-3">
+                                <div class="direct-link-row">
+                                    <a id="gate-qr-direct-link" href="/mobile-auth.html" target="_blank"
+                                        class="btn btn-outline btn-xs">
+                                        🔗 Open Mobile Companion in Tab &rarr;
+                                    </a>
+                                </div>
+                                <div class="lan-address-display mt-1">
+                                    <small>Wi-Fi Access: <code
+                                            id="gate-lan-url-display">http://172.21.18.46:8080/mobile-auth.html</code></small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pane 2: On-Screen Simulated Phone Companion -->
+                        <div id="gate-companion-pane-sim" class="companion-pane" style="display: none;">
+                            <p class="section-intro-text text-sm">
+                                Simulated physical 2FA hardware token or mobile app. The 6-digit code rotates
+                                cryptographically every 30 seconds.
+                            </p>
+
+                            <div class="phone-mockup-light">
+                                <div class="phone-screen-light">
+                                    <div class="phone-status-bar">
+                                        <span class="phone-time" id="auth-phone-clock">10:00 AM</span>
+                                        <span class="phone-signal">●●● 5G</span>
+                                    </div>
+
+                                    <div class="phone-totp-card">
+                                        <div class="phone-totp-head">
+                                            <span class="phone-service">TITAN SPORTS 2FA</span>
+                                            <span class="phone-account"
+                                                id="phone-display-user">admin@titansports.org</span>
+                                        </div>
+
+                                        <div class="phone-totp-display">
+                                            <span class="phone-totp-digits" id="phone-current-code">------</span>
+                                            <button type="button" class="btn-copy-code" id="btn-phone-copy-code"
+                                                title="Copy 2FA code">📋</button>
+                                        </div>
+
+                                        <div class="phone-progress-wrap">
+                                            <div class="phone-progress-bar" id="phone-progress-bar"></div>
+                                        </div>
+                                        <div class="phone-timer-sub">
+                                            Expires in: <strong id="phone-timer-seconds">30</strong>s
+                                        </div>
+                                    </div>
+
+                                    <div class="phone-secret-meta">
+                                        <small>Seed: <code id="phone-display-seed">JBSWY3DPEHPK3PXP</code></small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="auth-security-bulletin mt-3">
+                            <div class="bulletin-item">
+                                <span class="bulletin-icon">🛡️</span>
+                                <span class="bulletin-text"><strong>Two-Factor Protection:</strong> Stolen passwords
+                                    cannot grant access without the rotating 6-digit token on your device.</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+       SECTION 4: MAIN APPLICATION SYSTEM (VISIBLE AFTER SIGN IN)
+       Contains the top platform header, navigation bar, and all portals:
+       - Administrator Command Center (For Admins)
+       - User / Athlete Portal (For Athletes, Coaches, Referees, Viewers)
+       - Sports Entities Management
+       - Cryptographic Salt & Pepper Sandbox Lab
+       ===================================================================== -->
+    <div id="app-authenticated-container" class="app-main-system" style="display: none;">
+
+        <!-- Top System Header -->
+        <header class="app-header" id="app-header">
+            <div class="header-left">
+                <div class="brand-logo" id="brand-logo">
+                    <div class="logo-icon">⚡</div>
+                    <div class="logo-text">
+                        <h2 class="logo-title">TITAN SPORTS <span class="badge-pill-os">OS</span></h2>
+                        <p class="logo-subtitle">Enterprise Multi-Role Sports Architecture</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-center">
+                <!-- Live System Status Indicators -->
+                <div class="system-status-indicator">
+                    <span class="status-dot online"></span>
+                    <span class="status-text" id="system-status-label">Production Operational</span>
+                </div>
+                <div class="security-chip-light" title="Global pepper stored in secure server environment">
+                    <span class="chip-icon">🌶️</span>
+                    <span class="chip-label">Pepper Secret: Active</span>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <!-- Quick Role Switcher for seamless demonstration -->
+                <div class="role-switcher-box">
+                    <label for="demo-user-select" class="switcher-label">Switch Persona:</label>
+                    <select id="demo-user-select" class="form-select select-sm" aria-label="Switch between demo roles">
+                        <option value="usr_admin">👑 Super Administrator</option>
+                        <option value="usr_coach">📋 Coach Marcus</option>
+                        <option value="usr_athlete">🏃 Athlete Alex</option>
+                        <option value="usr_referee">⚖️ Referee Dave</option>
+                        <option value="usr_viewer">👁️ Viewer Sarah</option>
+                    </select>
+                </div>
+
+                <!-- Current User Profile Widget -->
+                <div class="user-profile-widget" id="user-profile-badge">
+                    <div class="avatar-circle" id="current-user-avatar">AD</div>
+                    <div class="user-meta">
+                        <span class="user-fullname" id="current-user-name">Administrator</span>
+                        <span class="user-role-tag role-admin" id="current-user-role">Super Admin</span>
+                    </div>
+                    <button id="btn-system-logout" class="btn btn-outline btn-xs" title="Sign out to gate screen">Sign
+                        Out</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Navigation Bar -->
+        <nav class="app-nav" id="app-nav" aria-label="Main Application Navigation">
+            <div class="nav-container">
+                <!-- General Dashboard -->
+                <button class="nav-tab active" data-tab="tab-dashboard" id="nav-btn-dashboard">
+                    <span class="tab-icon">📊</span>
+                    <span class="tab-text">Dashboard</span>
+                </button>
+
+                <!-- DEDICATED ADMINISTRATOR PAGE (Only for Admin role) -->
+                <button class="nav-tab nav-tab-admin" data-tab="tab-admin" id="nav-btn-admin">
+                    <span class="tab-icon">👑</span>
+                    <span class="tab-text">Administrator Console</span>
+                    <span class="badge-role-pill">Admin Only</span>
+                </button>
+
+                <!-- DEDICATED USERS / ATHLETES PAGE -->
+                <button class="nav-tab" data-tab="tab-user-portal" id="nav-btn-user-portal">
+                    <span class="tab-icon">🏃</span>
+                    <span class="tab-text">User & Athlete Portal</span>
+                </button>
+
+                <!-- Sports Entities Management (Teams, Players, Matches, Tournaments) -->
+                <button class="nav-tab" data-tab="tab-entities" id="nav-btn-entities">
+                    <span class="tab-icon">🏆</span>
+                    <span class="tab-text">Sports Entities</span>
+                </button>
+
+                <!-- Salt & Pepper Cryptographic Lab -->
+                <button class="nav-tab" data-tab="tab-crypto" id="nav-btn-crypto">
+                    <span class="tab-icon">🧂</span>
+                    <span class="tab-text">Salt & Pepper Lab</span>
+                </button>
+
+                <!-- Admin Audit Trail (Shortcut with live counter) -->
+                <button class="nav-tab" data-tab="tab-audit" id="nav-btn-audit">
+                    <span class="tab-icon">📜</span>
+                    <span class="tab-text">Admin Audit Trail</span>
+                    <span class="badge-count" id="audit-badge-counter">0</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- ===================================================================
+         SECTION 5: PRIMARY SYSTEM VIEWS
+         =================================================================== -->
+        <main class="main-content" id="main-content">
+
+            <!-- =================================================================
+           VIEW 1: OVERVIEW DASHBOARD
+           High-level summary of active teams, registered athletes,
+           scheduled fixtures, security state, and RBAC matrix.
+           ================================================================= -->
+            <section id="tab-dashboard" class="tab-view active">
+                <div class="view-header">
+                    <div>
+                        <h2 class="view-title">Sports Platform Operational Overview</h2>
+                        <p class="view-subtitle">Real-time telemetry, active entity counters, and Role-Based Access
+                            Control matrix.</p>
+                    </div>
+                    <div class="view-actions">
+                        <button class="btn btn-primary" id="btn-dash-create-match" data-permission="manage_matches">
+                            <span>+</span> Schedule Match
+                        </button>
+                        <button class="btn btn-secondary" id="btn-dash-quick-backup" data-permission="manage_backup">
+                            <span>💾</span> Quick Snapshot
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Metric Stat Cards -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon-wrap bg-cyan">🏆</div>
+                        <div class="metric-data">
+                            <span class="metric-value" id="stat-total-teams">0</span>
+                            <span class="metric-label">Registered Franchises</span>
+                        </div>
+                        <div class="metric-badge text-cyan">4 Active Leagues</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon-wrap bg-emerald">🏃</div>
+                        <div class="metric-data">
+                            <span class="metric-value" id="stat-total-athletes">0</span>
+                            <span class="metric-label">Registered Athletes</span>
+                        </div>
+                        <div class="metric-badge text-emerald">100% Medical Cleared</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon-wrap bg-amber">⚡</div>
+                        <div class="metric-data">
+                            <span class="metric-value" id="stat-total-matches">0</span>
+                            <span class="metric-label">Matches & Fixtures</span>
+                        </div>
+                        <div class="metric-badge text-amber">Active Schedule</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon-wrap bg-purple">👥</div>
+                        <div class="metric-data">
+                            <span class="metric-value" id="stat-total-users">0</span>
+                            <span class="metric-label">System Identities</span>
+                        </div>
+                        <div class="metric-badge text-purple">2FA Enforced</div>
+                    </div>
+                </div>
+
+                <!-- Split Grid: Security Architecture Summary & RBAC Matrix -->
+                <div class="grid-2col">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">🔐 Enterprise Security Architecture</h3>
+                            <span class="badge badge-success">ACTIVE DEFENSE</span>
+                        </div>
+                        <div class="card-body">
+                            <ul class="feature-bullets-list">
+                                <li>
+                                    <div class="bullet-icon">🧂</div>
+                                    <div>
+                                        <strong>Per-User Unique Salt Nonce (16 Bytes / 32 Hex)</strong>
+                                        <p>Generated uniquely for every user record to eliminate Rainbow Table
+                                            vulnerabilities.</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="bullet-icon">🌶️</div>
+                                    <div>
+                                        <strong>System-Wide Secret Pepper</strong>
+                                        <p>Protected in secure server memory, never saved to the user database. Defends
+                                            against offline dictionary cracking.</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="bullet-icon">📲</div>
+                                    <div>
+                                        <strong>Two-Factor Authentication (RFC 6238 TOTP)</strong>
+                                        <p>Time-synchronized rotating 6-digit authentication token required on every
+                                            login.</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="bullet-icon">⚙️</div>
+                                    <div>
+                                        <strong>Data-Preserving Config Restore Points</strong>
+                                        <p>Reverts platform configurations without modifying or deleting any sports
+                                            entity records.</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="bullet-icon">📜</div>
+                                    <div>
+                                        <strong>Immutable Admin Audit Trails</strong>
+                                        <p>Mandatory logging with high-severity tracking whenever any user identity is
+                                            deleted.</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">👥 Role Capabilities & Access Control (RBAC)</h3>
+                            <span class="badge badge-info" id="dash-active-role-badge">Active Role: Super Admin</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="data-table table-compact">
+                                    <thead>
+                                        <tr>
+                                            <th>Role</th>
+                                            <th>Sports Entities</th>
+                                            <th>Match Scoring</th>
+                                            <th>User Admin</th>
+                                            <th>Audit Logs</th>
+                                            <th>Config & Backup</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><span class="user-role-tag role-admin">Super Admin</span></td>
+                                            <td><span class="perm-yes">✓ Full</span></td>
+                                            <td><span class="perm-yes">✓ Full</span></td>
+                                            <td><span class="perm-yes">✓ Full</span></td>
+                                            <td><span class="perm-yes">✓ Full</span></td>
+                                            <td><span class="perm-yes">✓ Full</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="user-role-tag role-coach">Coach</span></td>
+                                            <td><span class="perm-yes">✓ Teams/Roster</span></td>
+                                            <td><span class="perm-yes">✓ View</span></td>
+                                            <td><span class="perm-no">✗ Restricted</span></td>
+                                            <td><span class="perm-no">✗ Restricted</span></td>
+                                            <td><span class="perm-no">✗ Restricted</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="user-role-tag role-referee">Referee</span></td>
+                                            <td><span class="perm-no">✗ View Only</span></td>
+                                            <td><span class="perm-yes">✓ Record Scores</span></td>
+                                            <td><span class="perm-no">✗ Restricted</span></td>
+                                            <td><span class="perm-no">✗ Restricted</span></td>
+                                            <td><span class="perm-no">✗ Restricted</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="user-role-tag role-athlete">Athlete</span></td>
+                                            <td><span class="perm-no">✗ My Team</span></td>
+                                            <td><span class="perm-no">✗ View Stats</span></td>
+                                            <td><span class="perm-no">✗ Restricted</span></td>
+                                            <td><span class="perm-no">✗ Restricted</span></td>
+                                            <td><span class="perm-no">✗ Restricted</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="user-role-tag role-viewer">Viewer</span></td>
+                                            <td><span class="perm-no">✗ Read-Only</span></td>
+                                            <td><span class="perm-no">✗ Read-Only</span></td>
+                                            <td><span class="perm-no">✗ Restricted</span></td>
+                                            <td><span class="perm-no">✗ Restricted</span></td>
+                                            <td><span class="perm-no">✗ Restricted</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =================================================================
+           VIEW 2: DEDICATED ADMINISTRATOR PAGE
+           *CRITICAL REQUIREMENT*: "make sure the administrator has his own page"
+           Contains:
+           - User Identity Management & Provisioning
+           - User Deletion with Mandatory Audit Logging
+           - Config Restore Points (Data-preserving)
+           - System Configuration
+           - Full System Backups
+           ================================================================= -->
+            <section id="tab-admin" class="tab-view">
+                <div class="view-header">
+                    <div>
+                        <h2 class="view-title">👑 Administrator Command Center</h2>
+                        <p class="view-subtitle">Dedicated administrator workspace: Identity management, deletion
+                            auditing, data-preserving config restore points, and backup engine.</p>
+                    </div>
+                    <div class="view-actions">
+                        <button class="btn btn-primary" id="btn-admin-add-user" data-permission="manage_users">
+                            <span>+</span> Provision New Identity
+                        </button>
+                        <button class="btn btn-secondary" id="btn-admin-quick-backup" data-permission="manage_backup">
+                            <span>💾</span> System Snapshot
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Admin Subtabs -->
+                <div class="sub-nav">
+                    <button class="sub-tab active" data-subtab="admin-sub-users" id="admin-subtab-users">
+                        <span>👥</span> User Management (<span id="admin-count-users">0</span>)
+                    </button>
+                    <button class="sub-tab" data-subtab="admin-sub-restore" id="admin-subtab-restore">
+                        <span>📌</span> Config Restore Points & System Settings
+                    </button>
+                    <button class="sub-tab" data-subtab="admin-sub-backup" id="admin-subtab-backup">
+                        <span>💾</span> Full System Backups
+                    </button>
+                </div>
+
+                <!-- Admin Subtab 1: User Directory & Deletion Auditing -->
+                <div id="admin-sub-users" class="subtab-pane active">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Registered System Identities & Cryptographic Salt Metadata</h3>
+                            <span class="badge badge-purple" id="admin-user-total-badge">Total Users: 0</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="data-table" id="table-admin-users">
+                                    <thead>
+                                        <tr>
+                                            <th>User ID</th>
+                                            <th>Username / Identity</th>
+                                            <th>Full Name</th>
+                                            <th>Role</th>
+                                            <th>2FA Status</th>
+                                            <th>Stored Salt Nonce</th>
+                                            <th>Status</th>
+                                            <th>Created</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody-admin-users">
+                                        <!-- Populated dynamically via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Subtab 2: Config Restore Points & Settings -->
+                <div id="admin-sub-restore" class="subtab-pane">
+                    <!-- Critical Restore Point Architectural Principle -->
+                    <div class="restore-point-banner">
+                        <div class="banner-icon">🛡️</div>
+                        <div class="banner-text">
+                            <strong>Config-Isolated Restore Point Principle:</strong>
+                            <p>
+                                When applying a <strong>Config Restore Point</strong>, the system restores
+                                administrative configuration settings
+                                (e.g., Theme, 2FA Enforcement Strictness, Maintenance Mode, Session Timers)
+                                <span class="highlight-text">WITHOUT touching or deleting any sports entities (Teams,
+                                    Athletes, Matches)</span>.
+                                This guarantees continuous data safety during administrative rollbacks.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid-2col mt-4">
+                        <!-- Active Configuration Card -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">⚙️ Active Platform Configuration</h3>
+                                <span class="badge badge-cyan" id="config-version-badge">v2.4-Active</span>
+                            </div>
+                            <div class="card-body">
+                                <form id="form-system-config">
+                                    <div class="form-group">
+                                        <label for="cfg-system-name" class="form-label">Platform Title</label>
+                                        <input type="text" id="cfg-system-name" class="form-control"
+                                            value="Titan Sports OS">
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group col-6">
+                                            <label for="cfg-theme" class="form-label">System Theme</label>
+                                            <select id="cfg-theme" class="form-select">
+                                                <option value="theme-light">Crisp Light (Modern Clean)</option>
+                                                <option value="theme-dark">Dark Cyber (Obsidian Neon)</option>
+                                                <option value="theme-navy">Modern Navy (Slate Corporate)</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-6">
+                                            <label for="cfg-session-timeout" class="form-label">Inactivity
+                                                Timeout</label>
+                                            <select id="cfg-session-timeout" class="form-select">
+                                                <option value="15">15 Minutes</option>
+                                                <option value="30">30 Minutes</option>
+                                                <option value="60">60 Minutes</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" id="cfg-2fa-strict" checked>
+                                            <span>Strict 2FA Enforcement (Mandatory for all roles)</span>
+                                        </label>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" id="cfg-maintenance-mode">
+                                            <span>Maintenance Mode (Restrict non-admin access)</span>
+                                        </label>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" id="cfg-audit-verbose" checked>
+                                            <span>Verbose Audit Logging (Capture all events)</span>
+                                        </label>
+                                    </div>
+
+                                    <div class="form-actions mt-3">
+                                        <button type="submit" class="btn btn-primary" id="btn-save-config"
+                                            data-permission="manage_config">
+                                            Save Active Configuration
+                                        </button>
+                                        <button type="button" class="btn btn-outline"
+                                            id="btn-create-restore-point-from-cfg" data-permission="manage_config">
+                                            <span>📌</span> Save as New Restore Point
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Saved Restore Points List Card -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">📌 Saved Config Restore Points</h3>
+                                <span class="badge badge-emerald">Data Preserving</span>
+                            </div>
+                            <div class="card-body">
+                                <p class="section-intro-text">
+                                    Revert configuration state without modifying entity data.
+                                    <strong>Notice that team, athlete, and match counts remain 100% intact!</strong>
+                                </p>
+                                <div class="restore-points-list" id="restore-points-container">
+                                    <!-- Dynamically populated -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Subtab 3: Full Backups -->
+                <div id="admin-sub-backup" class="subtab-pane">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">💾 Full System Backup & Full State Restore</h3>
+                            <span class="badge badge-purple">Entities + Config + Users</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="grid-2col">
+                                <div class="backup-action-box">
+                                    <h4>Export Full System Backup</h4>
+                                    <p>Creates a full JSON snapshot of all sports entities, user accounts, audit
+                                        journals, and active configurations.</p>
+                                    <div class="btn-group mt-2">
+                                        <button class="btn btn-primary" id="btn-download-backup"
+                                            data-permission="manage_backup">
+                                            <span>⬇️</span> Download Backup JSON
+                                        </button>
+                                        <button class="btn btn-secondary" id="btn-slot-backup"
+                                            data-permission="manage_backup">
+                                            <span>📦</span> Save to Local Slot
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="backup-action-box">
+                                    <h4>Import Full System Backup</h4>
+                                    <p>Upload a previously exported Titan Sports OS JSON backup file to restore full
+                                        system state.</p>
+                                    <div class="file-upload-wrap mt-2">
+                                        <input type="file" id="input-backup-file" accept=".json" class="file-input">
+                                        <button class="btn btn-emerald" id="btn-trigger-upload-restore"
+                                            data-permission="manage_backup">
+                                            <span>⬆️</span> Restore From File
+                                        </button>
+                                        <button class="btn btn-outline" id="btn-restore-last-slot"
+                                            data-permission="manage_backup">
+                                            <span>🔄</span> Restore Local Slot
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =================================================================
+           VIEW 3: DEDICATED USER & ATHLETE PORTAL
+           *CRITICAL REQUIREMENT*: "and also the users"
+           Contains:
+           - User Identification Profile Card
+           - My Team & Franchise Roster
+           - My Upcoming Matches & Scoreboards
+           - Referee Match Scoring Workspace
+           ================================================================= -->
+            <section id="tab-user-portal" class="tab-view">
+                <div class="view-header">
+                    <div>
+                        <h2 class="view-title">🏃 User & Athlete Personal Portal</h2>
+                        <p class="view-subtitle">Personalized member workspace for athletes, coaches, match referees,
+                            and fans.</p>
+                    </div>
+                </div>
+
+                <!-- User Profile Card -->
+                <div class="card user-portal-hero-card">
+                    <div class="user-portal-hero-body">
+                        <div class="user-portal-avatar" id="portal-hero-avatar">AL</div>
+                        <div class="user-portal-details">
+                            <div class="portal-badge-row">
+                                <h3 class="portal-user-name" id="portal-hero-name">Alex Rivera</h3>
+                                <span class="user-role-tag role-athlete" id="portal-hero-role">Athlete</span>
+                                <span class="badge badge-success">✓ 2FA Verified</span>
+                                <button type="button" class="btn btn-outline btn-xs" id="btn-portal-show-my-qr"
+                                    title="Scan to receive code on your phone">
+                                    📱 My 2FA QR Code
+                                </button>
+                            </div>
+                            <p class="portal-user-email" id="portal-hero-email">a.rivera@titansports.org</p>
+                            <div class="portal-security-info">
+                                <span>Account ID: <code id="portal-hero-id">USR-2026-004</code></span>
+                                <span>•</span>
+                                <span>Assigned Salt: <code class="text-amber"
+                                        id="portal-hero-salt">4f5e6d7c8b9a...</code></span>
+                                <span>•</span>
+                                <span>Status: <strong class="text-emerald">Active & Eligible</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Role Specific Features Split -->
+                <div class="grid-2col mt-4">
+                    <!-- My Teams & Roster Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">🛡️ My Team & Franchise Roster</h3>
+                            <span class="badge badge-cyan">Apex Cyber Hawks</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="data-table table-compact">
+                                    <thead>
+                                        <tr>
+                                            <th>Jersey</th>
+                                            <th>Player</th>
+                                            <th>Position</th>
+                                            <th>Sport</th>
+                                            <th>Eligibility</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody-portal-roster">
+                                        <!-- Populated via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- My Upcoming Matches & Scoreboards -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">⚡ Scheduled Matches & Live Results</h3>
+                            <span class="badge badge-amber">Season Fixtures</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="data-table table-compact">
+                                    <thead>
+                                        <tr>
+                                            <th>Matchup</th>
+                                            <th>Date</th>
+                                            <th>Venue</th>
+                                            <th>Score</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody-portal-matches">
+                                        <!-- Populated via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =================================================================
+           VIEW 4: SPORTS ENTITIES MANAGEMENT
+           Manage Teams, Athletes, Matches, and Tournaments.
+           ================================================================= -->
+            <section id="tab-entities" class="tab-view">
+                <div class="view-header">
+                    <div>
+                        <h2 class="view-title">Sports Entity Management</h2>
+                        <p class="view-subtitle">Franchises, athletes, fixtures, and tournament championships.</p>
+                    </div>
+                    <div class="view-actions">
+                        <button class="btn btn-primary" id="btn-open-create-entity-modal"
+                            data-permission="manage_entities">
+                            <span>+</span> Create Sports Entity
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Entity Sub-Navigation Tabs -->
+                <div class="sub-nav">
+                    <button class="sub-tab active" data-subtab="subtab-teams" id="subtab-btn-teams">
+                        <span>🛡️</span> Teams (<span id="count-teams">0</span>)
+                    </button>
+                    <button class="sub-tab" data-subtab="subtab-athletes" id="subtab-btn-athletes">
+                        <span>🏃</span> Athletes (<span id="count-athletes">0</span>)
+                    </button>
+                    <button class="sub-tab" data-subtab="subtab-matches" id="subtab-btn-matches">
+                        <span>⚡</span> Matches & Fixtures (<span id="count-matches">0</span>)
+                    </button>
+                    <button class="sub-tab" data-subtab="subtab-tournaments" id="subtab-btn-tournaments">
+                        <span>🏆</span> Tournaments (<span id="count-tournaments">0</span>)
+                    </button>
+                </div>
+
+                <!-- Subtab 1: Teams Grid -->
+                <div id="subtab-teams" class="subtab-pane active">
+                    <div class="teams-grid" id="teams-cards-container">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+
+                <!-- Subtab 2: Athletes Table -->
+                <div id="subtab-athletes" class="subtab-pane">
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="data-table" id="table-athletes">
+                                <thead>
+                                    <tr>
+                                        <th>Athlete ID</th>
+                                        <th>Full Name</th>
+                                        <th>Team</th>
+                                        <th>Sport</th>
+                                        <th>Jersey</th>
+                                        <th>Position</th>
+                                        <th>Health Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-athletes">
+                                    <!-- Dynamically populated -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subtab 3: Matches Table -->
+                <div id="subtab-matches" class="subtab-pane">
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="data-table" id="table-matches">
+                                <thead>
+                                    <tr>
+                                        <th>Fixture ID</th>
+                                        <th>Matchup</th>
+                                        <th>Sport</th>
+                                        <th>Date & Time</th>
+                                        <th>Venue</th>
+                                        <th>Score</th>
+                                        <th>Status</th>
+                                        <th>Official Referee</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-matches">
+                                    <!-- Dynamically populated -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subtab 4: Tournaments Table -->
+                <div id="subtab-tournaments" class="subtab-pane">
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="data-table" id="table-tournaments">
+                                <thead>
+                                    <tr>
+                                        <th>Tournament ID</th>
+                                        <th>Championship Name</th>
+                                        <th>Sport</th>
+                                        <th>Season</th>
+                                        <th>Teams</th>
+                                        <th>Prize Trophy</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-tournaments">
+                                    <!-- Dynamically populated -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =================================================================
+           VIEW 5: CRYPTOGRAPHIC SALT & PEPPER LAB
+           Interactive live hashing sandbox demonstrating why Salt and Pepper
+           protect against rainbow tables and breached database leaks.
+           ================================================================= -->
+            <section id="tab-crypto" class="tab-view">
+                <div class="view-header">
+                    <div>
+                        <h2 class="view-title">Cryptographic Architecture: Salt & Pepper Demonstration Lab</h2>
+                        <p class="view-subtitle">Interactive cryptographic sandbox demonstrating how Salt prevents
+                            rainbow tables and Pepper defends against leaked databases.</p>
+                    </div>
+                </div>
+
+                <!-- Educational Explainer Cards -->
+                <div class="crypto-explainer-grid">
+                    <div class="crypto-concept-card card-salt">
+                        <div class="concept-badge bg-amber">1. The Salt (Per-User Public Nonce)</div>
+                        <h3>What is Salt?</h3>
+                        <p>A random cryptographic string generated uniquely for <strong>each individual user</strong>
+                            during account registration and stored in their database record.</p>
+                        <div class="concept-defense">
+                            <strong>Defeats:</strong> Rainbow tables & cross-user pattern analysis. Two users with
+                            identical passwords yield completely distinct hashes because their salts differ!
+                        </div>
+                    </div>
+
+                    <div class="crypto-concept-card card-pepper">
+                        <div class="concept-badge bg-purple">2. The Pepper (System-Wide Secret)</div>
+                        <h3>What is Pepper?</h3>
+                        <p>A high-entropy secret string maintained <strong>strictly outside the database</strong> in
+                            secure server environment variables.</p>
+                        <div class="concept-defense">
+                            <strong>Defeats:</strong> Offline GPU dictionary attacks if the database is leaked. Even if
+                            an attacker steals the entire database and salts, they cannot crack hashes without the
+                            Pepper!
+                        </div>
+                    </div>
+
+                    <div class="crypto-concept-card card-formula">
+                        <div class="concept-badge bg-cyan">3. The Secure Formula</div>
+                        <h3>Cryptographic Synthesis</h3>
+                        <p>The system combines all three inputs in a fixed sequence and calculates the SHA-256 digest:
+                        </p>
+                        <div class="formula-box">
+                            <code>Final_Hash = SHA256( Salt + Password + Pepper )</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Interactive Sandbox Card -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h3 class="card-title">🧪 Live Interactive Cryptographic Simulator</h3>
+                        <button class="btn btn-outline btn-sm" id="btn-crypto-randomize-salt">⚡ Generate New Random
+                            Salt</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="sandbox-controls-grid">
+                            <div class="form-group">
+                                <label for="sandbox-password" class="form-label">
+                                    <span class="color-dot dot-blue"></span> Plaintext Password
+                                </label>
+                                <input type="text" id="sandbox-password" class="form-control mono-font"
+                                    value="Championship2026!">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="sandbox-salt" class="form-label">
+                                    <span class="color-dot dot-amber"></span> Per-User Salt (Stored in DB)
+                                </label>
+                                <input type="text" id="sandbox-salt" class="form-control mono-font"
+                                    value="e8f1b34c92a74df8b50619283746a5b2">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="sandbox-pepper" class="form-label">
+                                    <span class="color-dot dot-purple"></span> System Pepper (Server Secret)
+                                </label>
+                                <input type="text" id="sandbox-pepper" class="form-control mono-font"
+                                    value="TITAN_ENV_SECRET_PEPPER_KEY_994821">
+                            </div>
+                        </div>
+
+                        <!-- Toggles to inspect exclusion -->
+                        <div class="toggle-row">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="chk-include-salt" checked>
+                                <span>Include Salt in Hash</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="chk-include-pepper" checked>
+                                <span>Include Pepper in Hash</span>
+                            </label>
+                        </div>
+
+                        <!-- Compound String Breakdown -->
+                        <div class="compound-string-inspector">
+                            <h4 class="inspector-title">Assembled Input Buffer Before Hashing:</h4>
+                            <div class="compound-pill-container" id="compound-pill-container">
+                                <span class="pill pill-salt"
+                                    id="pill-display-salt">e8f1b34c92a74df8b50619283746a5b2</span>
+                                <span class="pill-divider">+</span>
+                                <span class="pill pill-password" id="pill-display-pwd">Championship2026!</span>
+                                <span class="pill-divider">+</span>
+                                <span class="pill pill-pepper"
+                                    id="pill-display-pepper">TITAN_ENV_SECRET_PEPPER_KEY_994821</span>
+                            </div>
+                        </div>
+
+                        <!-- Output Hash Box -->
+                        <div class="hash-result-card">
+                            <div class="hash-meta">
+                                <span class="hash-algorithm">Output Hash: SHA-256 (256-bit Digest)</span>
+                                <span class="hash-length">64 Hexadecimal Characters</span>
+                            </div>
+                            <div class="hash-display-box" id="sandbox-hash-output">
+                                Calculating...
+                            </div>
+                        </div>
+
+                        <!-- Multi-User Salt Proof Table -->
+                        <div class="mt-4">
+                            <h4>Live Proof: Same Password ('Champion2026!') Across 3 Users with Unique Salts</h4>
+                            <div class="table-responsive">
+                                <table class="data-table table-compact" id="table-salt-proof">
+                                    <thead>
+                                        <tr>
+                                            <th>User</th>
+                                            <th>Password</th>
+                                            <th>Unique User Salt (Stored in DB)</th>
+                                            <th>Resulting Stored Hash (SHA256)</th>
+                                            <th>Rainbow Table Vulnerable?</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody-salt-proof">
+                                        <!-- Populated dynamically via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- =================================================================
+           VIEW 6: ADMIN AUDIT TRAILS & ACTIVITY LOGS
+           *CRITICAL REQUIREMENT*: "Admin roles(Audit trails, when a user is deleted we must have audit roles)"
+           Records all user deletions, logins, restore points, backups, etc.
+           ================================================================= -->
+            <section id="tab-audit" class="tab-view">
+                <div class="view-header">
+                    <div>
+                        <h2 class="view-title">Admin Audit Trail & Security Event Logs</h2>
+                        <p class="view-subtitle">Tamper-evident chronological audit journal capturing user deletions,
+                            administrative interventions, and cryptographic challenges.</p>
+                    </div>
+                    <div class="view-actions">
+                        <button class="btn btn-outline" id="btn-export-audit-json">
+                            <span>⬇️</span> Export JSON
+                        </button>
+                        <button class="btn btn-outline" id="btn-export-audit-csv">
+                            <span>📊</span> Export CSV
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filter Toolbar -->
+                <div class="filter-toolbar">
+                    <div class="search-input-wrap">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="audit-search-box" class="form-control"
+                            placeholder="Search audit logs by actor, action, IP, or details...">
+                    </div>
+                    <div class="filter-controls">
+                        <select id="audit-filter-action" class="form-select select-sm">
+                            <option value="ALL">All Actions</option>
+                            <option value="USER_DELETED">⚠️ User Deletions Only</option>
+                            <option value="AUTH_EVENT">🔐 Authentication & 2FA</option>
+                            <option value="CONFIG_RESTORE">📌 Config Restore Points</option>
+                            <option value="BACKUP_EVENT">💾 Backups & Restores</option>
+                            <option value="ENTITY_MOD">🏆 Entity Operations</option>
+                        </select>
+                        <select id="audit-filter-severity" class="form-select select-sm">
+                            <option value="ALL">All Severities</option>
+                            <option value="CRITICAL">Critical / Danger</option>
+                            <option value="WARNING">Warning</option>
+                            <option value="INFO">Informational</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="data-table" id="table-audit-trail">
+                            <thead>
+                                <tr>
+                                    <th>Log ID</th>
+                                    <th>Timestamp</th>
+                                    <th>Actor</th>
+                                    <th>Role</th>
+                                    <th>Action</th>
+                                    <th>Severity</th>
+                                    <th>Target Resource</th>
+                                    <th>Details & Context</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-audit-trail">
+                                <!-- Dynamically populated -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- =====================================================================
+       SECTION 6: MODALS & POPUP DIALOGS
+       ===================================================================== -->
+
+    <!-- Modal 1: 2FA Verification Challenge & Mobile QR Scan Modal -->
+    <div class="modal-overlay" id="modal-2fa" role="dialog" aria-modal="true" aria-labelledby="modal-2fa-title">
+        <div class="modal-content modal-2fa-split">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-2fa-title">📲 Two-Factor Authentication & Mobile Scan</h3>
+                <button class="modal-close" id="btn-close-2fa-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-2fa-intro">
+                    <p>Security challenge issued for: <strong id="modal-2fa-target-user"
+                            class="text-primary-600">admin</strong></p>
+                    <p class="text-muted text-sm">Scan the QR code with your smartphone to receive the rotating code
+                        directly on your device:</p>
+                </div>
+
+                <div class="modal-2fa-grid mt-3">
+                    <!-- Left: Scannable QR Code Column -->
+                    <div class="modal-2fa-qr-col">
+                        <!-- Mode Selector (Phone Camera vs Authenticator App) -->
+                        <div class="qr-mode-selector-wrap">
+                            <button type="button" class="btn-qr-mode active" id="btn-modal-qr-web">
+                                📷 Phone Camera (Web)
+                            </button>
+                            <button type="button" class="btn-qr-mode" id="btn-modal-qr-app">
+                                🛡️ Google / Apple App
+                            </button>
+                        </div>
+
+                        <!-- Rendered QR Code Frame -->
+                        <div class="modal-qr-frame mt-2">
+                            <div id="modal-2fa-qrcode-box" class="qr-code-render-target"></div>
+                        </div>
+
+                        <!-- Relay Status (Waiting vs Code Received) -->
+                        <div class="relay-status-pill mt-2" id="modal-relay-status">
+                            <span class="pulse-dot"></span>
+                            <span id="modal-relay-status-text">Waiting for device scan...</span>
+                        </div>
+
+                        <div class="mt-2 text-center">
+                            <a id="modal-mobile-auth-link" href="/mobile-auth.html" target="_blank"
+                                class="text-xs text-cyan">
+                                🔗 Open Mobile Token in New Tab &rarr;
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Right: Verification Input Column -->
+                    <div class="modal-2fa-input-col">
+                        <form id="form-verify-2fa">
+                            <label for="input-2fa-otp" class="form-label">Enter 6-Digit Code Received on Device:</label>
+                            <div class="otp-input-container">
+                                <input type="text" id="input-2fa-otp"
+                                    class="form-control text-center otp-input mono-font" maxlength="6"
+                                    placeholder="000000" autofocus autocomplete="one-time-code" required>
+                            </div>
+
+                            <!-- Alert banner when code is pushed from mobile device -->
+                            <div id="modal-code-received-alert" class="code-received-alert mt-2" style="display: none;">
+                                <span>🟢</span> Code received from your mobile phone! Verifying...
+                            </div>
+
+                            <div class="otp-helper-actions mt-2">
+                                <button type="button" class="btn btn-outline btn-xs btn-block"
+                                    id="btn-modal-paste-current-totp">
+                                    ⚡ Paste Current Simulator TOTP
+                                </button>
+                            </div>
+
+                            <div class="form-actions mt-3">
+                                <button type="submit" class="btn btn-primary btn-block btn-lg"
+                                    id="btn-submit-2fa-verify">
+                                    Verify & Complete Sign In &rarr;
+                                </button>
+                            </div>
+
+                            <div class="manual-seed-box mt-3">
+                                <small class="text-muted">Manual Key: <code
+                                        id="modal-2fa-seed-display">JBSWY3DPEHPK3PXP</code></small>
+                                <button type="button" class="btn-copy-seed" id="btn-copy-seed-modal"
+                                    title="Copy secret seed">📋</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: Create / Edit Entity Modal -->
+    <div class="modal-overlay" id="modal-entity" role="dialog" aria-modal="true" aria-labelledby="modal-entity-title">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-entity-title">Create Sports Entity</h3>
+                <button class="modal-close" id="btn-close-entity-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-create-entity">
+                    <div class="form-group">
+                        <label for="entity-type-select" class="form-label">Entity Category</label>
+                        <select id="entity-type-select" class="form-select">
+                            <option value="Team">Team / Franchise</option>
+                            <option value="Athlete">Athlete / Player</option>
+                            <option value="Match">Match / Fixture</option>
+                            <option value="Tournament">Tournament / League</option>
+                        </select>
+                    </div>
+
+                    <div id="entity-dynamic-fields">
+                        <!-- Dynamically populated via JS -->
+                    </div>
+
+                    <div class="form-actions mt-4">
+                        <button type="button" class="btn btn-secondary" id="btn-cancel-entity-modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="btn-save-entity-modal">Save Entity</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3: Provision User Modal -->
+    <div class="modal-overlay" id="modal-user" role="dialog" aria-modal="true" aria-labelledby="modal-user-title">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-user-title">Provision New System Identity</h3>
+                <button class="modal-close" id="btn-close-user-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-modal-create-user">
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label for="modal-user-username" class="form-label">Username</label>
+                            <input type="text" id="modal-user-username" class="form-control" required
+                                placeholder="e.g. coach_valerie">
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="modal-user-fullname" class="form-label">Full Name</label>
+                            <input type="text" id="modal-user-fullname" class="form-control" required
+                                placeholder="Valerie Chen">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="modal-user-email" class="form-label">Email Address</label>
+                        <input type="email" id="modal-user-email" class="form-control" required
+                            placeholder="valerie@sports.org">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label for="modal-user-role" class="form-label">Role Assignment</label>
+                            <select id="modal-user-role" class="form-select">
+                                <option value="Admin">Super Admin</option>
+                                <option value="Coach">Coach</option>
+                                <option value="Referee">Referee</option>
+                                <option value="Athlete">Athlete</option>
+                                <option value="Viewer">Viewer</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="modal-user-password" class="form-label">Initial Password</label>
+                            <input type="password" id="modal-user-password" class="form-control" required
+                                value="Titan@2026!">
+                        </div>
+                    </div>
+
+                    <div class="crypto-note-box mt-2">
+                        <span>🛡️ A fresh 32-character Salt will be generated and combined with System Pepper.</span>
+                    </div>
+
+                    <div class="form-actions mt-4">
+                        <button type="button" class="btn btn-secondary" id="btn-cancel-user-modal">Cancel</button>
+                        <button type="submit" class="btn btn-emerald" id="btn-save-user-modal">Provision
+                            Identity</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 4: User Deletion Confirmation Modal (CRITICAL MANDATORY AUDIT NOTICE) -->
+    <div class="modal-overlay" id="modal-delete-user" role="dialog" aria-modal="true"
+        aria-labelledby="modal-delete-user-title">
+        <div class="modal-content modal-sm">
+            <div class="modal-header header-danger">
+                <h3 class="modal-title" id="modal-delete-user-title">⚠️ Confirm User Deletion</h3>
+                <button class="modal-close" id="btn-close-delete-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to permanently delete user identity: <strong
+                        id="delete-user-target-name">user</strong> (<span id="delete-user-target-id">USR-000</span>)?
+                </p>
+
+                <div class="audit-warning-box">
+                    <div class="warning-badge">MANDATORY AUDIT TRAIL LOGGING</div>
+                    <p class="text-sm">
+                        In accordance with system governance, <strong>an immutable CRITICAL audit log</strong> will be
+                        permanently recorded capturing:
+                    </p>
+                    <ul class="text-xs">
+                        <li>Admin Identity & IP Address</li>
+                        <li>Exact Timestamp</li>
+                        <li>Target User ID, Role, and Salt Nonce</li>
+                        <li>Reason for Account Termination</li>
+                    </ul>
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="delete-user-reason" class="form-label">Termination Reason (Recorded in Audit
+                        Trail):</label>
+                    <input type="text" id="delete-user-reason" class="form-control"
+                        placeholder="e.g., Seasonal Contract Ended, Policy Violation" value="Administrative Revocation">
+                </div>
+
+                <div class="form-actions mt-4">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-delete-user">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="btn-confirm-delete-user">Confirm Deletion & Log
+                        Audit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 5: Config Restore Point Confirmation Modal (ZERO DATA IMPACT GUARANTEE) -->
+    <div class="modal-overlay" id="modal-restore-point" role="dialog" aria-modal="true"
+        aria-labelledby="modal-restore-point-title">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-restore-point-title">📌 Apply Configuration Restore Point</h3>
+                <button class="modal-close" id="btn-close-restore-point-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="restore-point-diff-preview" id="restore-point-diff-container">
+                    <!-- Populated dynamically with diff -->
+                </div>
+
+                <div class="data-safety-guarantee-box mt-3">
+                    <span class="safe-icon">✅</span>
+                    <div>
+                        <strong>Zero Data Impact Guarantee:</strong>
+                        <p class="text-sm">
+                            All <strong id="safe-team-count">0</strong> Teams, <strong id="safe-player-count">0</strong>
+                            Athletes,
+                            and <strong id="safe-match-count">0</strong> Matches will remain completely untouched.
+                            Only configuration variables will transition.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="form-actions mt-4">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-restore-point-modal">Cancel</button>
+                    <button type="button" class="btn btn-emerald" id="btn-confirm-restore-point-modal">Apply Config
+                        Restore Point</button>
+                </div>
+            </div>
+            <!-- Modal 6: View / Scan User 2FA QR Code Modal -->
+            <div class="modal-overlay" id="modal-view-qr" role="dialog" aria-modal="true"
+                aria-labelledby="modal-view-qr-title">
+                <div class="modal-content modal-sm">
+                    <div class="modal-header">
+                        <h3 class="modal-title" id="modal-view-qr-title">📱 Mobile 2FA Authenticator Setup</h3>
+                        <button class="modal-close" id="btn-close-view-qr-modal">&times;</button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <p class="text-sm">Identity: <strong id="view-qr-username">admin</strong> (<span
+                                id="view-qr-role">Super Admin</span>)</p>
+                        <p class="text-muted text-xs mt-1">Scan this QR code with your mobile camera or authenticator
+                            app to receive tokens on your device:</p>
+
+                        <!-- Format Selector -->
+                        <div class="qr-mode-selector-wrap mt-2">
+                            <button type="button" class="btn-qr-mode active" id="btn-view-qr-mode-web">
+                                📷 Phone Camera (Web)
+                            </button>
+                            <button type="button" class="btn-qr-mode" id="btn-view-qr-mode-app">
+                                🛡️ Authenticator App
+                            </button>
+                        </div>
+
+                        <!-- QR Display Frame -->
+                        <div class="modal-qr-frame mt-3">
+                            <div id="view-qr-code-target" class="qr-code-render-target"></div>
+                        </div>
+
+                        <div class="mt-2">
+                            <a id="view-qr-direct-link" href="/mobile-auth.html" target="_blank"
+                                class="text-xs text-cyan">
+                                🔗 Open Mobile Companion in New Tab &rarr;
+                            </a>
+                        </div>
+
+                        <div class="manual-seed-box mt-3 text-left">
+                            <small class="text-muted">Secret Seed: <code
+                                    id="view-qr-seed-display">JBSWY3DPEHPK3PXP</code></small>
+                            <button type="button" class="btn-copy-seed" id="btn-copy-view-qr-seed"
+                                title="Copy secret seed">📋</button>
+                        </div>
+
+                        <div class="form-actions mt-4">
+                            <button type="button" class="btn btn-secondary btn-block" id="btn-close-view-qr">Done /
+                                Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Core JavaScript Application Logic -->
+            <script src="qrcode.min.js"></script>
+            <script src="sports.js"></script>
+</body>
+
+</html>
